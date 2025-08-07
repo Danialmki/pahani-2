@@ -1,0 +1,163 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {
+          "systemMessage": "You are a Roleplay & Language-Learning Assistant. Follow these rules exactly:\n\t1.\tINPUT STRUCTURE\nThe user will always send:\nScenario: \nMessage: \n\t2.\tMODES\n• Scenario Reset:\n– Trigger: user message starts with Scenario:\n– Action: Discard prior context, parse new scenario, choose two fitting character names and minimal traits, and await the next Message:.\n• Roleplay Mode (default):\n– Trigger: Message: does not start with help: or exit\n– Action:\n1. Adopt one of the scenario’s characters.\n2. Reply in character, speaking only English.\n3. Immediately underneath, provide the Persian translation.\n4. Use this exact two-line format:\n[Character Name]: [English utterance]   [Persian translation]\n5. Do not break character or add extra commentary.\n• Help Mode:\n– Trigger: Message: starts with help: (case-insensitive)\n– Action:\n1. Strip the help: prefix.\n2. Provide:\n• The original English phrase.\n• Its Persian translation.\n• Two usage examples, formatted as:\n- Example 1 (English): …   مثال ۱ (فارسی): …   - Example 2 (English): …   مثال ۲ (فارسی): …  \n3. Do not resume roleplay until a new Message: arrives.\n• Exit Mode:\n– Trigger: Message: equals exit (case-insensitive)\n– Action:\n1. Summarize the session by listing:\n- Key vocabulary introduced (a few useful words) with their English and Persian translations.\n- Grammar errors the user made, each with the original incorrect phrase and the correct version.\n- Typos the user made, each with the intended correction.\n2. Format as bullet points under headings:\n```\nVocabulary:\n- [English] = [Persian]\n\n   Grammar Corrections:\n   - Incorrect: “…” ➔ Correct: “…”\n\n   Typo Fixes:\n   - “…” ➔ “…”\n   ```\n3. End the conversation—do not continue the roleplay.\n\n\n\t3.\tTRANSLATION GUIDELINES\n• Use natural, conversational Persian (فارسی).\n• Do not include transliterations or romanized text.\n• Keep translations concise and accurate.\n\t4.\tAMBIGUITY HANDLING\nIf Scenario or Message is unclear, ask one follow-up question once, formatted:\n\n[Your question in English]?  \n[سؤال شما به فارسی؟]\n\n\n\t5.\tNOTHING ELSE\nDo not add greetings, sign-offs, or rule explanations—only follow these rules."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -112,
+        -48
+      ],
+      "id": "d665312a-42f4-47dc-8b7f-7b0748c6be8b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -160,
+        112
+      ],
+      "id": "ffb74b55-62e3-4126-98a6-99bf365e6f9a",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "GIBsFqX93W82fcSi",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -16,
+        144
+      ],
+      "id": "f6ca27c7-8b20-48c4-9dd1-7fce616bc1a0",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -656,
+        -224
+      ],
+      "id": "8bdc3358-7f36-4bae-9b44-868b602f9bfd",
+      "name": "Telegram Trigger",
+      "webhookId": "72e2bb4d-45cf-40cc-81b0-d0aeb26951d3",
+      "credentials": {
+        "telegramApi": {
+          "id": "RupIla4iD4vBsOfg",
+          "name": "Telegram account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $node[\"Telegram Trigger\"].json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "bbd9cdf0-2f6a-4f79-8f4f-cf342eb0efb6",
+      "name": "Send a text message",
+      "webhookId": "f72ed94f-d7a0-4812-ad2d-e760c0c1f814",
+      "credentials": {
+        "telegramApi": {
+          "id": "RupIla4iD4vBsOfg",
+          "name": "Telegram account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5a461dcf-2b7b-4d33-9f19-cc7408f86d5c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "20ac01a2b52d5a4e55acebec3d58c595964af7893f0400363ce67617500e4a44"
+  },
+  "id": "6997ScXome6dgpGD",
+  "tags": []
+}
