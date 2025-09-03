@@ -15,11 +15,11 @@ const nextConfig: NextConfig = {
         port: "4000",
         pathname: "/**",
       },
-      // Your local IP for development
+      // Localtunnel URL for Vercel deployment
       {
-        protocol: "http",
-        hostname: "185.253.121.180",
-        port: "4000",
+        protocol: "https",
+        hostname: "cyan-readers-laugh.loca.lt",
+        port: "",
         pathname: "/**",
       },
       // Allow all local IPs for development
@@ -32,7 +32,7 @@ const nextConfig: NextConfig = {
     ],
   },
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://185.253.121.180:4000/api',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://cyan-readers-laugh.loca.lt/api',
   },
   output: 'standalone',
 };
